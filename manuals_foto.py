@@ -1,6 +1,7 @@
 from PIL import ImageGrab           # Veiks ekrānuzņēmumus.
 import tkinter as tk                # Uzzīmēs ekrānuzņēmuma rāmi uz ekrāna.
 import keyboard                     # Iegūs klaviatūras inputu.
+import win32gui, win32con           # Ļauj veidot pilnīgi nekustīgus, caurspīdīgus programmas logus.
 
 # Attiecīgā ekrāna px dimensijas. Šis ir vajadzīgi, lai atrastu ekrāna centru.
 screen_width = 1920
@@ -13,6 +14,10 @@ square_size = 512
 screenshot_x = (screen_width - square_size) // 2
 screenshot_y = (screen_height - square_size) // 2
 screenshot_coordinates = (screenshot_x, screenshot_y, screenshot_x + square_size, screenshot_y + square_size)
+
+# Atrod ekrāna centra koordinātas.
+centre_x = screen_width // 2
+centre_y = screen_height // 2
 
 image_id_number = 1                     # Palīdzēs katrai bildei dot savu numuru faila vārdā.
 border_on = False                       # Norādīs, vai ekrānuzņēmuma rāmi vajag attēlot uz ekrāna.
@@ -37,13 +42,15 @@ def capture(image_id_number):
 overlay = None
 canvas = None
 border = None
+horizontal_line = None
+vertical_line = None
 
 # Funkcijas, kas uzzīmē rāmi uz ekrāna.
 def draw_border():
-    global border_on, overlay, canvas, border                       # Izsauc jau definētos mainīgos.
+    global border_on, overlay, canvas, border, horizontal_line, vertical_line   # Izsauc jau definētos mainīgos.
 
-    if overlay == None:                                             # Šis nosacījums ir vajadzīgs, lai veidotu logu un zīmešanas virsmu tikai pirmaja reizē, kad šī funkcija tiek izsaukta.
-        overlay = tk.Tk()                                           # Izveido jaunu logu.
+    if overlay == None:                                                         # Šis nosacījums ir vajadzīgs, lai veidotu logu un zīmešanas virsmu tikai pirmaja reizē, kad šī funkcija tiek izsaukta.
+        overlay = tk.Tk()                                                       # Izveido jaunu logu.
 
         # Logu padara caurspīdīgu. Šeit tiek definēta krāsa, kas visā logā būs caurspīdīga. 
         # Tas ir viens no Tkinter ierobežojumiem, jo precīzi šajā krāsā nevarēs uzzīmēt rāmi vai citus objektus. Tie tad būtu caurspīdīgi.
@@ -60,51 +67,61 @@ def draw_border():
         canvas = tk.Canvas(overlay, width=screen_width, height=screen_height, bg=transparent_colour, highlightthickness=0)
         canvas.pack()
 
-        # Uzzīmē rāmi. Dod rāmim "border" identifikatoru.
-        border = canvas.create_rectangle(screenshot_x, screenshot_y, screenshot_x + square_size, screenshot_y + square_size, outline="#ffffff", width=3, tags="border")
-
-        # Veido, lai programma nereģistrē lietotāja peles darbības, kas ir virzītas uz rāmja.
-        canvas.itemconfigure("border", state="disabled")
+        # Uzzīmē rāmi.
+        horizontal_line = canvas.create_line(screenshot_x, centre_y, screenshot_x + square_size, centre_y, fill="#ffffff", width=1)
+        vertical_line = canvas.create_line(centre_x, screenshot_y, centre_x, screenshot_y + square_size, fill="#ffffff", width=1)
+        border = canvas.create_rectangle(screenshot_x, screenshot_y, screenshot_x + square_size, screenshot_y + square_size, outline="#ffffff", width=4)
 
         # Attēlo logu un norāda, ka ekrānuzņemuma rāmis ir uzzīmēts.
         overlay.update()                            
         border_on = True
+
+        # Padara logu pilnīgi caurspiežamu. Tkinter pats par sevi nevar izveidot pilnīgi caurspiežamu logu. Pat caurspīdīgs logs var reģistrēt klikšķus.
+        # win32gui ļauj izmantot Windows API, lai logs būtu tikai vizuāls.
+        handle_to_window = int(overlay.frame(), 16)                                                                                     # Iegūst loga "handle" jeb identifikatoru pareizā formatā.
+        styles = win32gui.GetWindowLong(handle_to_window, win32con.GWL_EXSTYLE)                                                         # Nolasa loga stila iestatījumus.
+        win32gui.SetWindowLong(handle_to_window, win32con.GWL_EXSTYLE, styles | win32con.WS_EX_TRANSPARENT | win32con.WS_EX_LAYERED)    # Papildina loga stila iestatījumus.
         
-        return border_on, overlay, canvas, border   # Atgriež mainīgos.
+        return border_on, overlay, canvas, border, horizontal_line, vertical_line                                                       # Atgriež mainīgos.
     else:
         # Ja logs jau ir izveidots, nevajag definēt vēl vienu logu un zīmēšanas virsmu, bet gan tikai jaunu rāmi.
 
         # Uzzīmē rāmi.
-        border = canvas.create_rectangle(screenshot_x, screenshot_y, screenshot_x + square_size, screenshot_y + square_size, outline="#ffffff", width=3)
+        horizontal_line = canvas.create_line(screenshot_x, centre_y, screenshot_x + square_size, centre_y, fill="#ffffff", width=1)
+        vertical_line = canvas.create_line(centre_x, screenshot_y, centre_x, screenshot_y + square_size, fill="#ffffff", width=1)
+        border = canvas.create_rectangle(screenshot_x, screenshot_y, screenshot_x + square_size, screenshot_y + square_size, outline="#ffffff", width=4)
         
         # Atjauno logu un norāda, ka ekrānuzņemuma rāmis ir uzzīmēts.
         overlay.update()                            
         border_on = True
 
-        return border_on, overlay, canvas, border   # Atgriež mainīgos.
+        return border_on, overlay, canvas, border, horizontal_line, vertical_line   # Atgriež mainīgos.
 
 # Funkcija, kas izdzēš ekrānuzņēmuma rāmi.
 def delete_border():
-    global border_on, overlay, canvas, border   # Izsauc jau definētos mainīgos.
+    global border_on, overlay, canvas, border, horizontal_line, vertical_line   # Izsauc jau definētos mainīgos.
     
-    canvas.delete(border)                       # Izdzēš rāmi no zīmēšanas virsmas.
+    # Izdzēš rāmi no zīmēšanas virsmas.
+    canvas.delete(border)
+    canvas.delete(horizontal_line)
+    canvas.delete(vertical_line)
 
     # Atjauno logu un norāda, ka ekrānuzņemuma rāmis nav uzzīmēts.
     overlay.update()
     border_on = False
 
-    return border_on                            # Atgriež mainīgos.
+    return border_on    # Atgriež mainīgos.
 
 # Funkcija, kas savieno capture(image_id_number), draw_border() un delete_border() funkcijas.
 # "event=None" arguments ir vajadzīgs, lai to varētu lietot keyboard biblotēka, kas automātiski ievieto event argumentu funkcijās.
 def take_screenshot(event=None):
-    global image_id_number, border_on           # Izsauc jau definētos mainīgos.
+    global image_id_number, border_on                               # Izsauc jau definētos mainīgos.
 
     # Ja rāmis ir redzams, tad pirms ekrānuzņēmuma to vajag izdzēst un pēc tam uzzīmēt atkal. Ja nav, tad tikai veic ekrānuzņēmumu.
     if border_on == True:
         border_on = delete_border()
         image_id_number, screenshot_name = capture(image_id_number)
-        border_on, overlay, canvas, border = draw_border()
+        border_on, overlay, canvas, border, horizontal_line, vertical_line = draw_border()
     else:
         image_id_number, screenshot_name = capture(image_id_number)
     
@@ -113,11 +130,11 @@ def take_screenshot(event=None):
 # Funkcija, kas savieno draw_border() un delete_border() funkcijas.
 # "event=None" arguments ir vajadzīgs, lai to varētu lietot keyboard biblotēka, kas automātiski ievieto event argumentu funkcijās.
 def toggle_border(event=None):
-    global border_on, overlay, canvas, border   # Izsauc jau definētos mainīgos.
+    global border_on, overlay, canvas, border, horizontal_line, vertical_line   # Izsauc jau definētos mainīgos.
 
     # Ja rāmis nav uz ekrāna, tad uzzīmē to. Ja ir, tad izdzēs to.
     if border_on == False:
-        border_on, overlay, canvas, border = draw_border()
+        border_on, overlay, canvas, border, horizontal_line, vertical_line = draw_border()
     else:
         border_on = delete_border()
 
