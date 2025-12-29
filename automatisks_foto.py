@@ -21,11 +21,11 @@
 #
 # -------------------------------------------------------------------------------------------------------------------------------------
 
-from pyproj import Transformer          # Pārveidos koordinātas no vienas koordinātu sistēmas uz citu.
-from colorama import Fore               # Formatēs tekstu terminālī.
-import requests                         # Iegūs attēlus no WMS servera.
-import math                             # Atļaus apaļot skaitļus.
-import os                               # Darbosies ar mapēm.
+from pyproj import Transformer      # Pārveidos koordinātas no vienas koordinātu sistēmas uz citu.
+from colorama import Fore           # Formatēs tekstu terminālī.
+import requests                     # Iegūs attēlus no WMS servera.
+import math                         # Atļaus apaļot skaitļus.
+import os                           # Darbosies ar mapēm.
 
 # Pamatu iestatījumi.
 coordinate_transformer = Transformer.from_crs("EPSG:4326", "EPSG:3059", always_xy=True)     # Pārveidos koordinātas uz LKS-92 metru sistēmu.
@@ -169,11 +169,11 @@ if mode == "1":
         print("- Tiek sākta attēla uzņemšana.") 
 
     # Pilskalnu attēlu uzņemšana.
-    for kartes_veids, destination_folder in kartes_veidi.items():                                                               # Veic nākamās cikla līnijas katram karšu veidam attiecīgajā mapē.
-        destination_location = os.path.join("algoritma_datu_kopa", "pilskalni", destination_folder)                                # Veido pilskalnu mapi.
-        os.makedirs(destination_location, exist_ok=True)                                                                   # Veido mapi un apakšmapi attiecīgajam kartes veidam, ja tā jau nepastāv.
+    for kartes_veids, destination_folder in kartes_veidi.items():                                       # Veic nākamās cikla līnijas katram karšu veidam attiecīgajā mapē.
+        destination_location = os.path.join("algoritma_datu_kopa", "pilskalni", destination_folder)     # Veido pilskalnu mapi.
+        os.makedirs(destination_location, exist_ok=True)                                                # Veido mapi un apakšmapi attiecīgajam kartes veidam, ja tā jau nepastāv.
 
-        for name, coords in pilskalni.items():                                                                                         # Veic pilskalnu attēlu uzņemšanu.
+        for name, coords in pilskalni.items():                                                          # Veic pilskalnu attēlu uzņemšanu.
             
             # Formatē koordinātas priekš WMS URL.
             latitude, longitude = coords
@@ -190,7 +190,7 @@ if mode == "1":
                 with open(os.path.join(destination_location, file_name), "wb") as picture_file:
                     picture_file.write(picture.content)
             
-            image_id += 1                                                                                   # Sagatavo numuru nākamajam attēlam.
+            image_id += 1               # Sagatavo numuru nākamajam attēlam.
         
         image_id = image_id_original    # Atgriež atpakaļ oriģinālo numura vērtību, lai nākamajā cikla reizē, pirmais uzņemtais attēls (atbilstošajā mapē) tiktu nosaukts ar definēto pirmo numuru.
 
@@ -244,8 +244,8 @@ if mode == "2":
             break
 
         # Pārveido definētos stūra punktus uz LKS-92 (EPSG:3059) sistēmas metriem.
-        x1_lks, y1_lks = coordinate_transformer.transform(longitude_1, latitude_1)      # Augšējais kreisais stūris teritorijā.
-        x2_lks, y2_lks = coordinate_transformer.transform(longitude_2, latitude_2)      # Apakšējais labais stūris teritorijā.
+        x1_lks, y1_lks = coordinate_transformer.transform(longitude_1, latitude_1)  # Augšējais kreisais stūris teritorijā.
+        x2_lks, y2_lks = coordinate_transformer.transform(longitude_2, latitude_2)  # Apakšējais labais stūris teritorijā.
 
         # Saglabā šos mainīgos jaunos mainīgajos, kuri netiks mainīti. Šīs vērtības tiks pielietotas, lai izsauktu funkcijas vairākas reizes tādā pašā veidā kā iepriekšējā, jebšu, lai būtu tāds pats pirmā attēla numurs un teritorija. Šis ir vienkāršākais atrisinājums.
         x1_lks_original = x1_lks                                                      
@@ -281,7 +281,7 @@ if mode == "2":
 
         # Funkcija, kas uzņems parasto teritoriju attēlus no WMS servera.
         def take_region_photos(kartes_veids, destination_folder, destination_location):
-            global x1_lks, y1_lks, x2_lks, y2_lks, x1_lks_original, image_id        # Izsauc jau definētos mainīgos.
+            global x1_lks, y1_lks, x2_lks, y2_lks, x1_lks_original, image_id    # Izsauc jau definētos mainīgos.
 
             for column_images in range(images_in_column):
                 for row_images in range(images_in_row):
@@ -312,17 +312,17 @@ if mode == "2":
                 y1_lks = y1_lks - increase
                         
         # Pareizi izsauc funkciju, kas veiks parasto teritoriju attēlu uzņemšanu katrā kartes veidā.
-        for kartes_veids, destination_folder in kartes_veidi.items():                                                   # Veic nākamās cikla līnijas katram karšu veidam attiecīgajā mapē.
-            image_id = image_id_start_territory                                                                 # Nodrošina, lai katrā teritorijā ir pareizais pirmā attēla numurs.
+        for kartes_veids, destination_folder in kartes_veidi.items():                                               # Veic nākamās cikla līnijas katram karšu veidam attiecīgajā mapē.
+            image_id = image_id_start_territory                                                                     # Nodrošina, lai katrā teritorijā ir pareizais pirmā attēla numurs.
 
-            destination_location = os.path.join("algoritma_datu_kopa", "parastas_teritorijas", destination_folder)       # Veido parasto teritoriju mapi.
-            take_region_photos(kartes_veids, destination_folder, destination_location)                                  # Veic parasto teritoriju attēlu uzņemšanu.
+            destination_location = os.path.join("algoritma_datu_kopa", "parastas_teritorijas", destination_folder)  # Veido parasto teritoriju mapi.
+            take_region_photos(kartes_veids, destination_folder, destination_location)                              # Veic parasto teritoriju attēlu uzņemšanu.
             
             # Atgriež atpakaļ oriģinālajās vērtībās, lai nākamajā cikla reizē, funkcija tiktu izpildīta tādā pašā veidā, kur ir definēts tas pats pirmā attēla numurs un teritorija.
             x1_lks = x1_lks_original
             y1_lks = y1_lks_original
         
-        image_id_start_territory = image_id_start_territory + image_count_per_folder            # Nodrošina, lai nākamās teritorijas numurs ir pareizs. 
+        image_id_start_territory = image_id_start_territory + image_count_per_folder    # Nodrošina, lai nākamās teritorijas numurs ir pareizs. 
 
     # Attēlu skaits.
     image_count_per_folder_total = image_id_start_territory - image_id_original
@@ -355,10 +355,10 @@ if mode == "3":
 
     while True:
         try:
-            latitude_1 = float(input(f"- Kreisā augšējā punkta platuma koordināta grādos (piemēram, {Fore.CYAN}57.11710{Fore.RESET}): {Fore.CYAN}"))                  # 57.11710
-            longitude_1 = float(input(f"{Fore.RESET}- Kreisā augšējā punkta garuma koordināta grādos (piemēram, {Fore.CYAN}26.98152{Fore.RESET}): {Fore.CYAN}"))       # 26.98152
-            latitude_2 = float(input(f"{Fore.RESET}- Labā apakšējā punkta platuma koordināta grādos (piemēram, {Fore.CYAN}57.11249{Fore.RESET}): {Fore.CYAN}"))        # 57.11249
-            longitude_2 = float(input(f"{Fore.RESET}- Labā apakšējā punkta garuma koordināta grādos (piemēram, {Fore.CYAN}26.99075{Fore.RESET}): {Fore.CYAN}"))        # 26.99075
+            latitude_1 = float(input(f"- Kreisā augšējā punkta platuma koordināta grādos (piemēram, {Fore.CYAN}57.11710{Fore.RESET}): {Fore.CYAN}"))                # 57.11710
+            longitude_1 = float(input(f"{Fore.RESET}- Kreisā augšējā punkta garuma koordināta grādos (piemēram, {Fore.CYAN}26.98152{Fore.RESET}): {Fore.CYAN}"))    # 26.98152
+            latitude_2 = float(input(f"{Fore.RESET}- Labā apakšējā punkta platuma koordināta grādos (piemēram, {Fore.CYAN}57.11249{Fore.RESET}): {Fore.CYAN}"))     # 57.11249
+            longitude_2 = float(input(f"{Fore.RESET}- Labā apakšējā punkta garuma koordināta grādos (piemēram, {Fore.CYAN}26.99075{Fore.RESET}): {Fore.CYAN}"))     # 26.99075
 
             if latitude_1 < latitude_2:
                 print(f"{Fore.RESET}- {Fore.RED}Kreisā augšējā punkta platuma koordinātai jābūt lielākai vai vienādai par labā apakšējā.{Fore.RESET}\n")
@@ -375,8 +375,8 @@ if mode == "3":
             print(f"{Fore.RESET}- {Fore.RED}Vērtībai jābūt skaitlim!{Fore.RESET}\n")
             
     # Pārveido definētos stūra punktus uz LKS-92 (EPSG:3059) sistēmas metriem.
-    x1_lks, y1_lks = coordinate_transformer.transform(longitude_1, latitude_1)      # Augšējais kreisais stūris teritorijā.
-    x2_lks, y2_lks = coordinate_transformer.transform(longitude_2, latitude_2)      # Apakšējais labais stūris teritorijā.
+    x1_lks, y1_lks = coordinate_transformer.transform(longitude_1, latitude_1)  # Augšējais kreisais stūris teritorijā.
+    x2_lks, y2_lks = coordinate_transformer.transform(longitude_2, latitude_2)  # Apakšējais labais stūris teritorijā.
 
     # Saglabā šos mainīgos jaunos mainīgajos, kuri netiks mainīti. Šīs vērtības tiks pielietotas, lai izsauktu funkcijas vairākas reizes tādā pašā veidā kā iepriekšējā, jebšu, lai būtu tāds pats pirmā attēla numurs un teritorija. Šis ir vienkāršākais atrisinājums.
     x1_lks_original = x1_lks                                                      
@@ -412,7 +412,7 @@ if mode == "3":
 
     # Funkcija, kas uzņems specifisko teritoriju attēlus no WMS servera.
     def take_region_photos(kartes_veids, destination_folder, destination_location):
-        global x1_lks, y1_lks, x2_lks, y2_lks, x1_lks_original, image_id        # Izsauc jau definētos mainīgos.
+        global x1_lks, y1_lks, x2_lks, y2_lks, x1_lks_original, image_id    # Izsauc jau definētos mainīgos.
 
         # Pa katru rindu un kolonnu.
         for column_images in range(images_in_column):
@@ -450,7 +450,7 @@ if mode == "3":
         print("- Tiek sākta attēla uzņemšana.")     
 
     # Pareizi izsauc funkciju, kas veiks specifisko teritoriju attēlu uzņemšanu katrā kartes veidā.
-    for kartes_veids, destination_folder in kartes_veidi.items():                                                   # Veic nākamās cikla līnijas katram karšu veidam attiecīgajā mapē.
+    for kartes_veids, destination_folder in kartes_veidi.items():                                   # Veic nākamās cikla līnijas katram karšu veidam attiecīgajā mapē.
         destination_location = os.path.join("specifiska_teritorija", destination_folder)            # Veido specifisko teritoriju mapi.
         take_region_photos(kartes_veids, destination_folder, destination_location)                  # Veic specifisko teritoriju attēlu uzņemšanu.
         
