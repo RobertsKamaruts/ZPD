@@ -29,7 +29,7 @@ import os                           # Darbosies ar mapēm.
 
 # Pamatu iestatījumi.
 coordinate_transformer = Transformer.from_crs("EPSG:4326", "EPSG:3059", always_xy=True)     # Pārveidos koordinātas uz LKS-92 metru sistēmu.
-image_size = 1024                                                                           # Attēlu platums un garums pikseļos.
+image_size = 768                                                                            # Attēlu platums un garums pikseļos.
 image_meters = 512                                                                          # Tik daudz metru platumā un garumā reprezentē viens attēls.
 increase = 51.2                                                                             # Par tik lielu metru attālumu tiks uzņemts nākamais attēls teritoriju virknē (2. un 3. režīmā).
 
