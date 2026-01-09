@@ -25,7 +25,7 @@ from PyQt6.QtGui import QPixmap, QImage, QPainter, QColor, QBrush, QCursor, QPen
 # ----------------------------------------
 # 1. CONFIGURATION
 # ----------------------------------------
-MODEL_PATH = "best_model_v2.pth"
+MODEL_PATH = "modelis.pth"
 
 # Model Input Specs
 IMG_SIZE = 768           # Pixels (Model input)
