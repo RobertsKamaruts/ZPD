@@ -102,7 +102,6 @@ if mode == "1":
     #   - "Gribuļu pilskalns": [56.58872, 27.36869]
     #   - "Dagdas pilskalns": [56.10536, 27.53888]
     #   - "Silaješku pilskalns": [57.15694, 26.26512]
-    #   - "Bānūžu pilskalns": [57.15287, 25.57436]
     #   - "Piltiņkalns": [57.49235, 25.04525]
 
     # Attēlu daudzums.

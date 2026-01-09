@@ -12,6 +12,12 @@
 #
 # -------------------------------------------------------------------------------------------------------------------------------------
 
+# Pilskalni, kas tika izvēlēti, bet izņemti no saraksta algoritma pārbaudei:
+#   - "Gribuļu pilskalns": [56.58872, 27.36869]
+#   - "Dagdas pilskalns": [56.10536, 27.53888]
+#   - "Silaješku pilskalns": [57.15694, 26.26512]
+#   - "Piltiņkalns": [57.49235, 25.04525]
+
 pilskalni = {
         "Barauhas pilskalns": [56.31944, 27.30583], "Vacslobodas": [56.34263, 27.57849], "Smaganu pilskalns": [56.29535, 27.33050], "Cērtenes pilskalns": [57.41027, 25.90032],
         "Ladušu pilskalns": [56.36972, 27.37672], "Višu pilskalns": [56.38198, 27.56948], "Bondaru pilskalns": [56.29186, 27.33856], "Zeļenopoles Krātavu kalns": [56.26869, 27.49813],
